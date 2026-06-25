@@ -1,0 +1,49 @@
+{
+  "_comment": "保有株リスト。価格はここに保存せず、レポート生成時に取得する。shares は未確認のため null。",
+  "updated_at": "2026-05-29",
+  "jp_stocks": [
+    {
+      "name": "ライフネット生命保険 (Lifenet)",
+      "code": "7157",
+      "shares": null,
+      "cost_basis": null,
+      "note": "東証グロース上場"
+    }
+  ],
+  "us_stocks": [
+    {
+      "name": "Tesla",
+      "ticker": "TSLA",
+      "shares": null,
+      "cost_basis": null,
+      "note": "NASDAQ上場"
+    }
+  ],
+  "private_stocks": [
+    {
+      "name": "SpaceX",
+      "shares_or_stake": "",
+      "valuation_basis": "IPO想定評価額(S-1) / 直近私募",
+      "last_valuation": "$1.75T (S-1) 〜 $2T超 (Bloomberg報道)",
+      "last_valuation_date": "2026-05-20",
+      "note": "未上場 → IPO予定(SPCX, 上場 2026-06-12見込み)。直近私募 ~$800B(2025-12)"
+    },
+    {
+      "name": "Anthropic",
+      "shares_or_stake": "",
+      "valuation_basis": "直近ラウンド評価額(Series H)",
+      "last_valuation": "$965B",
+      "last_valuation_date": "2026-05-28",
+      "note": "未上場。前回 $380B(2026-02)から約2.5倍"
+    }
+  ],
+  "crypto": [
+    {
+      "name": "Bitcoin",
+      "ticker": "BTC",
+      "amount": null,
+      "cost_basis": null,
+      "note": "暗号資産。24時間取引"
+    }
+  ]
+}

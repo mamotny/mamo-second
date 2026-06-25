@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>保有ポートフォリオ</title>
+<style>
+  :root{
+    --bg:#0f1115; --card:#181b22; --card2:#1f2330; --line:#2a2f3a;
+    --txt:#e8eaed; --sub:#9aa3b2; --up:#26d07c; --down:#ff5d5d; --flat:#8a93a3;
+    --accent:#5b8cff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;
+    background:var(--bg);color:var(--txt);line-height:1.6;padding:24px;max-width:1200px;margin:0 auto}
+  header{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+  h1{font-size:22px;font-weight:700}
+  .asof{color:var(--sub);font-size:13px}
+  .note{color:var(--sub);font-size:12px;margin-bottom:20px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;
+    display:flex;flex-direction:column;gap:10px}
+  .ctop{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+  .name{font-size:16px;font-weight:700}
+  .tag{font-size:11px;color:var(--sub);background:var(--card2);border:1px solid var(--line);
+    border-radius:999px;padding:2px 9px;white-space:nowrap}
+  .price{font-size:26px;font-weight:700;letter-spacing:.3px}
+  .chg{font-size:14px;font-weight:600}
+  .up{color:var(--up)} .down{color:var(--down)} .flat{color:var(--flat)}
+  .meta{font-size:12px;color:var(--sub)}
+  .sec{margin-top:4px}
+  .sec h4{font-size:11px;color:var(--sub);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+  .news{list-style:none;display:flex;flex-direction:column;gap:6px}
+  .news li{font-size:12.5px}
+  .news .d{color:var(--accent);font-weight:600;margin-right:6px}
+  .news a{color:var(--txt);text-decoration:none;border-bottom:1px dotted var(--line)}
+  .news a:hover{color:var(--accent)}
+  .outlook{font-size:12.5px;color:var(--txt);background:var(--card2);border-radius:8px;padding:9px 11px}
+  footer{margin-top:26px;color:var(--sub);font-size:11px;border-top:1px solid var(--line);padding-top:14px}
+  .flag{color:#ffce6b}
+</style>
+</head>
+<body>
+<header>
+  <h1>📊 保有ポートフォリオ</h1>
+  <span class="asof" id="asof"></span>
+</header>
+<p class="note">上場株は前日終値ベース(15〜20分遅延ソース)。未上場株は直近評価額。保有数量は未登録のため損益・配分は非表示。</p>
+<div class="grid" id="grid"></div>
+<footer id="footer"></footer>
+
+<script>
+// ====== DATA (毎朝この部分を差し替える) ======
+const DATA = {
+  asOf: "2026-05-28",
+  generatedAt: "2026-05-29",
+  holdings: [
+    {
+      name:"Tesla", tag:"米国株 / TSLA",
+      price:"$441.01", chg:"30日 +9.9% / YTD −5.3%", dir:"up",
+      meta:"時価総額 ~$1.66T ・ 52週 $273–$499",
+      news:[
+        {d:"4/22", t:"Q1 2026 決算 EPS $0.41(予想 $0.30、+37%)。受注残は過去最高", u:"https://www.nasdaq.com/market-activity/stocks/tsla"},
+        {d:"5/14", t:"Robotaxi 大規模展開は2027年初の v15 FSD 後の見通し", u:"https://www.fool.com/investing/2026/05/14/heres-when-teslas-robotaxi-rollout-will-really-ram/"},
+        {d:"5/28", t:"$600 到達には「長い道のり」との慎重論", u:"https://www.foreignpolicyjournal.com/2026/05/28/tesla-tsla-stock-price-faces-long-odds-on-road-to-600-in-2026/"}
+      ],
+      outlook:"アナリスト二分:Wedbush 強気・目標 $600 / Morgan Stanley 中立・目標 $415。"
+    },
+    {
+      name:"ライフネット生命保険", tag:"日本株 / 7157",
+      price:"¥1,711", chg:"決算日 −6.0%(5/13)", dir:"down",
+      meta:"東証グロース ・ 時価総額 ~¥1,375億 ・ 52週 ¥1,643–¥2,365",
+      news:[
+        {d:"5/13", t:"FY2025 純利益 +34.2% ¥80.4億 — 4期連続最高益", u:"https://kabutan.jp/news/?b=k202605130364"},
+        {d:"5/13", t:"FY2026 ガイダンス +2.0% と保守的で出尽くし売り、安値更新", u:"https://kabutan.jp/news/?b=k202605130364"}
+      ],
+      outlook:"好決算でも株価下落。ガイダンス鈍化が嫌気。5/29ザラ場は要確認。"
+    },
+    {
+      name:"Bitcoin", tag:"暗号資産 / BTC",
+      price:"~$73,460", chg:"24h −2.6%", dir:"down",
+      meta:"約 ¥1,230万/BTC ・ $73K–$77K で保ち合い",
+      news:[
+        {d:"5/28", t:"米イラン緊張(ホルムズ海峡)で risk-off、下落", u:"https://fortune.com/article/price-of-bitcoin-05-28-2026/"},
+        {d:"5/28", t:"スポットBTC ETF が6営業日連続で流出 計~$1.26B", u:"https://www.coindesk.com/"},
+        {d:"5/7", t:"Tom Lee:5月を $76K 超で終えれば新たな強気相場確認", u:"https://www.coindesk.com/markets/2026/05/07/bitcoin-ending-may-above-usd76-000-would-confirm-new-bull-market-tom-lee-says"}
+      ],
+      outlook:"短期は地政学+ETF流出が逆風、構造的には規制整備(CLARITY法)が追い風。"
+    },
+    {
+      name:"SpaceX", tag:"未上場 → IPO間近",
+      price:"$1.75T〜$2T", chg:"IPO想定評価額", dir:"flat",
+      meta:"上場予定 6/12(SPCX)・ 直近私募 ~$800B(2025-12)",
+      news:[
+        {d:"5/20", t:"S-1提出。2025年売上 $18.7B(Starlink 61%)。Musk 議決権85%", u:"https://www.npr.org/2026/05/20/nx-s1-5812731/elon-musk-spacex-ai-ipo"},
+        {d:"5/26", t:"FTSE Russell が大型IPO早期組入れ容認、SPCX 指数入りへ", u:"https://www.bloomberg.com/news/articles/2026-05-26/spacex-ipo-gets-another-greenlight-toward-faster-index-inclusion"}
+      ],
+      outlook:"史上最大IPOへ。評価根拠はほぼ Starlink 収益性。近く換金性が生じる点が最重要。"
+    },
+    {
+      name:"Anthropic", tag:"未上場",
+      price:"$965B", chg:"前回比 約2.5倍(5/28)", dir:"up",
+      meta:"Series H 調達 $65B ・ 前回 $380B(2026-02)",
+      news:[
+        {d:"5/28", t:"$965B で資金調達、OpenAI($852B)を抜き世界最大のAIスタートアップに", u:"https://www.bloomberg.com/news/articles/2026-05-28/anthropic-raises-at-965-billion-valuation-eclipsing-openai"},
+        {d:"5/28", t:"売上ラン率 $47B(2025年通年 $10B)。IPO前最後の私募の可能性", u:"https://techcrunch.com/2026/05/28/anthropic-raises-65-billion-nears-1t-valuation-ahead-of-ipo/"}
+      ],
+      outlook:"保有資産評価が一段と上昇。次の節目は IPO 動向。"
+    }
+  ],
+  flags:[
+    "ライフネット 5/29 ザラ場価格は未取得(前日終値ベース)。",
+    "SpaceX 最終評価額は $1.75T(S-1)〜$2T超(Bloomberg)で報道に幅。ロードショーで確定。",
+    "保有数量未登録のため損益・資産配分は未算出。"
+  ]
+};
+// ====== RENDER ======
+const $ = (s)=>document.querySelector(s);
+document.getElementById("asof").textContent = `データ基準 ${DATA.asOf} ・ 生成 ${DATA.generatedAt}`;
+const grid = document.getElementById("grid");
+DATA.holdings.forEach(h=>{
+  const news = h.news.map(n=>`<li><span class="d">${n.d}</span><a href="${n.u}" target="_blank" rel="noopener">${n.t}</a></li>`).join("");
+  grid.insertAdjacentHTML("beforeend", `
+    <div class="card">
+      <div class="ctop">
+        <span class="name">${h.name}</span>
+        <span class="tag">${h.tag}</span>
+      </div>
+      <div>
+        <div class="price">${h.price}</div>
+        <div class="chg ${h.dir}">${h.chg}</div>
+      </div>
+      <div class="meta">${h.meta}</div>
+      <div class="sec"><h4>ニュース</h4><ul class="news">${news}</ul></div>
+      <div class="sec"><h4>リサーチ</h4><div class="outlook">${h.outlook}</div></div>
+    </div>`);
+});
+const flags = DATA.flags.map(f=>`<div class="flag">⚠ ${f}</div>`).join("");
+document.getElementById("footer").innerHTML = flags + `<div style="margin-top:10px">出典は各ニュース見出しのリンク先。投資判断は自己責任で。</div>`;
+</script>
+</body>
+</html>
